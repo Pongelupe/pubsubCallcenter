@@ -1,6 +1,8 @@
 package callcenter;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.TimeoutException;
 
 import com.rabbitmq.client.AMQP;
@@ -22,9 +24,31 @@ public class Consumidor {
 		Channel channel = connection.createChannel();
 		
 		channel.exchangeDeclare(EXCHANGE_NAME, "direct");
+		
+		BufferedReader d = new BufferedReader(new InputStreamReader(System.in));
+		int atendente = 0;
+		String linha = d.readLine();
+		atendente = Integer.parseInt(linha);
+		
 		String nomeFila = channel.queueDeclare().getQueue();
 		System.out.println(nomeFila);
-		channel.queueBind(nomeFila, EXCHANGE_NAME, "nova");
+		
+		switch(atendente){
+			case 1:
+				channel.queueBind(nomeFila, EXCHANGE_NAME, "nova linha");
+				break;
+			case 2:
+				channel.queueBind(nomeFila, EXCHANGE_NAME, "nova linha");
+				channel.queueBind(nomeFila, EXCHANGE_NAME, "reparo na linha");
+				break;
+			case 3:
+				channel.queueBind(nomeFila, EXCHANGE_NAME, "reparo na linha");
+				break;
+			case 4:
+				channel.queueBind(nomeFila, EXCHANGE_NAME, "reparo na linha");
+				channel.queueBind(nomeFila, EXCHANGE_NAME, "cancelamento de linha");
+				break;
+		}
 		
 		Consumer consumer = new DefaultConsumer(channel){
 			@Override
